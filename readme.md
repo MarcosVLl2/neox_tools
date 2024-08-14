@@ -14,6 +14,11 @@ pip install numpy transformations pymeshio tqdm pyqt5 zstandard lz4 moderngl pyr
 # Instructions to extract
 ## Basic examples
 
+To check your current version, use the '-v' or '--version' argument
+```txt
+> python extractor.py --version
+```
+
 No arguments will go through all the files and folders and find all NPK files
 ```txt
 > python extractor.py
@@ -67,7 +72,7 @@ I am not the creator (please check the original fork), I will only be offering s
 
 Thank you to:
 * [zhouhang95](https://github.com/zhouhang95/neox_tools) - Original script
-* [hax0r313373](https://github.com/hax0r31337/denpk2) - Code for new RSA encryption
+* [hax0r313373](https://github.com/hax0r31337/denpk2) - Code for new RSA/NXS3 encryption
 * [xforce](https://github.com/xforce/neox-tools) - Research on NPK files and how they work
 * [yuanbi](https://github.com/yuanbi/NeteaseUnpackTools) - Rotor encryption and marshalling for PYC
 
