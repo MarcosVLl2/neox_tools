@@ -1,8 +1,8 @@
-import shutil, mmh3
+import shutil, ctypes
 import os, struct, zlib, tempfile, argparse, zstandard, lz4.block, zipfile
 import rotor, time
 from key import Keys
-
+from timeit import default_timer as timer
 
 def readuint64(f):
     return struct.unpack('Q', f.read(8))[0]
@@ -13,8 +13,35 @@ def readuint16(f):
 def readuint8(f):
     return struct.unpack('B', f.read(1))[0]
 
+def nxs_unpack(data):
+    wrapped_key = ctypes.create_string_buffer(4)
+    data_in = ctypes.create_string_buffer(data[20:])
+
+    if os.name == "posix":
+        liblinux = ctypes.CDLL("./dll/libpubdecrypt.so")
+        returning = liblinux.public_decrypt(data_in, wrapped_key)
+    elif os.name == "nt":
+        libwindows = ctypes.CDLL("./dll/libpubdecrypt.dll")
+        returning = libwindows.public_decrypt(data_in, wrapped_key)
+
+
+    ephemeral_key = int.from_bytes(wrapped_key.raw, "little")
+
+    decrypted = []
+
+    for i, x in enumerate(data[20 + 128:]):
+        val = x ^ ((ephemeral_key >> (i % 4 * 8)) & 0xff)
+        if i % 4 == 3:
+            ror = (ephemeral_key >> 19) | ((ephemeral_key << (32 - 19)) & 0xFFFFFFFF)
+            ephemeral_key = (ror + ((ror << 2) & 0xFFFFFFFF) + 0xE6546B64) & 0xFFFFFFFF
+        decrypted.append(val)
+
+    decrypted = bytes(decrypted)
+    return decrypted
+
 def print_data(verblevel, text, data, typeofdata, pointer=0):
     match verblevel:
+        case 0:
         case 1:
             if typeofdata == "NXPK":
                 print("{} {}".format(text, data))
@@ -147,6 +174,7 @@ def unpack(args, statusBar=None):
     keys = Keys()
 
     for path in allfiles:
+        start = timer()
         print("UNPACKING: {}".format(path))
         folder_path = path[:-4]
         if not os.path.exists(folder_path):
@@ -185,14 +213,14 @@ def unpack(args, statusBar=None):
                 with open(folder_path+"/NXFN_result.txt", "w") as nxfn:
                     f.seek(index_offset + (files * 28) + 16)
                     nxfn_files = [x for x in (f.read()).split(b'\x00') if x != b'']
-                    for nxfnline in nxfn_files:
-                        complete_hash = int(mmh3.hash(nxfnline, signed=False)) # 0x66666666
-                        if not test:
-                            test = True
-                            print(args)
-                            print(complete_hash)
-                        hash_table.update({nxfnline:complete_hash})
-                        nxfn.write(nxfnline.decode() + "\n")
+                    #for nxfnline in nxfn_files:
+                        #complete_hash = int(mmh3.hash(nxfnline, signed=False)) # 0x66666666
+                        #if not test:
+                        #    test = True
+                        #    print(args)
+                        #    print(complete_hash)
+                        #hash_table.update({nxfnline:complete_hash})
+                        #nxfn.write(nxfnline.decode() + "\n")
             elif encryption_mode == 256:
                 f.seek(index_offset + (files * 28) + 16)
                 nxfn_files = [x for x in (f.read()).split(b'\x00') if x != b'']
@@ -253,7 +281,7 @@ def unpack(args, statusBar=None):
             
             for i, item in enumerate(index_table):
                 data2 = None
-                if (i % step == 0 or i + 1 == files and args.info < 2) or args.info > 2:
+                if (i % step == 0 or i + 1 == files and args.info < 2 and args.info != 0) or args.info > 2:
                     print('FILE: {}/{}'.format(i + 1, files))
                 file_sign, file_offset, file_length, file_original_length, zcrc, crc, file_structure, zflag, file_flag = item
                 print_data(args.info, "FILESIGN:", file_sign[0], "VERBOSE_FILE", file_sign[1])
@@ -333,15 +361,8 @@ def unpack(args, statusBar=None):
                 print_data(args.info, "COMPRESSION:", compression.upper(), "FILE", file_offset)
 
                 if compression == "nxs3":
-                    with open("file.tmp", "wb") as wr:
-                        wr.write(data)
-                    os.system('./denxs3')
-                    #time.sleep(0.0001) #if youre getting the error "done.tmp does not exist", try incrementing the sleep time
-                    data2 = data
-                    with open("done.tmp", "rb") as rd:
-                        data = rd.read()
-                    os.remove("file.tmp")
-                    os.remove("done.tmp")
+                    buf = nxs_unpack(data)
+                    data = lz4.block.decompress(buf, int.from_bytes(data[16:20], "little"))
 
                 if compression == 'zip':
                     print_data(args.info, "FILENAME:", file_path, "FILE", file_offset)
@@ -365,7 +386,8 @@ def unpack(args, statusBar=None):
                 if args.nxs3 and data2 != None:
                     with open(file_path[:-3] + "nxs3", "wb") as dat2:
                         dat2.write(data2)
-            print("FINISHED!")
+        end = timer()
+        print("FINISHED - DECOMPRESSED {} FILES IN {} seconds".format(files, end - start))
 
 
 def get_parser():
@@ -386,7 +408,6 @@ def get_parser():
 def main():
     opt = get_parser()
     unpack(opt)
-
 
 if __name__ == '__main__':
     main()
