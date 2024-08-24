@@ -42,6 +42,7 @@ def nxs_unpack(data):
 def print_data(verblevel, text, data, typeofdata, pointer=0):
     match verblevel:
         case 0:
+            pass
         case 1:
             if typeofdata == "NXPK":
                 print("{} {}".format(text, data))
