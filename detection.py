@@ -10,7 +10,6 @@ def get_compression(data):
     return 'none'
 
 def get_ext(data):
-    print(data[:8])
     if len(data) == 0:
         return 'none'
     elif data[:4] == bytes([0xE3, 0x00, 0x00, 0x00]) or data[:4] == bytes([0x63, 0x00, 0x00, 0x00]) or data[2:4] == bytes([0x0D, 0x0A]):
@@ -65,6 +64,12 @@ def get_ext(data):
         return 'tpl'
     elif data[:1] == b'{':
         return 'json'
+    elif data[:4] == b'TZif':
+        return 'tzif'
+    elif data[6:10] == b'JFIF':
+        return 'jfif'
+    elif data[4:8] == b'ftyp':
+        return 'mp4'
     elif data[:8] == b'RAWANIMA':
         return 'rawanimation'
     elif data[:9] == b'blastmesh':

@@ -2,14 +2,42 @@ def decryption_algorithm(flag):
     match flag:
         case 0:
             return "NONE"
+        case 1:
+            return "XOR_128"
+        case 2:
+            return "XOR_32_127_TYPE1"
         case 3:
-            return "CRCTYPE1"
+            return "XOR_32_127_TYPE2"
         case 4:
-            return "CRCTYPE2"
-    raise Exception("ERROR IN DECRYPTION ALGORITHM")
+            return "XOR_32_127_TYPE3"
+    raise Exception("ERROR IN DECRYPTION ALGORITHM: VALUE {}".format(flag))
 
 def file_decrypt(flag, data, crc=0,file_length=0,file_original_length=0):
     match flag:
+        case 1:
+            size = file_length
+
+            if size > 0x80:
+                size = 0x80
+
+            key = [(0x96 + x) & 0xFF for x in range(0, 0x100)]
+            data = bytearray(data)
+            for j in range(size):
+                data[j] = data[j] ^ key[j % 0xff]
+            
+        case 2:
+            b = crc ^ file_original_length
+
+            start = 0
+            size = file_length
+
+            if size > 0x80:
+                start = (crc >> 1) % (file_length - 0x80)
+                size = 2 * file_original_length % 0x60 + 0x20
+
+            key = [(x + b) & 0xFF for x in range(0, 0x81)]
+            for j in range(size):
+                data[start + j] = data[start + j] ^ key[j % 0x80]
         case 3:
             b = crc ^ file_original_length
 
@@ -19,10 +47,10 @@ def file_decrypt(flag, data, crc=0,file_length=0,file_original_length=0):
                 start = (crc >> 1) % (file_length - 0x80)
                 size = 2 * file_original_length % 0x60 + 0x20
             
-            key = [(x + b) & 0xFF for x in range(0, 0x100)]
+            key = [(x + b) & 0xFF for x in range(0, 0x81)]
             data = bytearray(data)
             for j in range(size):
-                data[start + j] = data[start + j] ^ key[j % len(key)]
+                data[start + j] = data[start + j] ^ key[j % 0x80]
         case 4:
             v3 = int(file_original_length)
             v4 = int(crc)
