@@ -14,65 +14,65 @@ pip install numpy transformations pymeshio tqdm pyqt5 zstandard lz4 moderngl pyr
 # Instructions to extract - 提取说明
 ## Basic examples - 基本例子
 
-To check your current version, use the '-v' or '--version' argument
+To check your current version, use the '-v' or '--version' argument<br>
 要检查当前版本，请使用'-v'或'--version'参数
 ```txt
 > python extractor.py --version
 ```
 
-No arguments will go through all the files and folders and find all NPK files
+No arguments will go through all the files and folders and find all NPK files<br>
 没有参数，程序将通过所有文件和文件夹并找到所有NPK文件
 ```txt
 > python extractor.py
 ```
 
-With the '-h' argument, you can see all the help options
+With the '-h' argument, you can see all the help options<br>
 使用'-h'参数，您可以查看帮助选项
 ```txt
 > python extractor.py -h
 ```
 
-With the '-p' argument, you can specify a file or a folder which to analyse
+With the '-p' argument, you can specify a file or a folder which to analyse<br>
 使用'-p'参数，您可以指定要分析的文件或文件夹
 ```txt
 > python extractor.py -p script.npk
 ```
 
-With the '-d' argument, if there are any ZIP or ZStandard files in the NPK, these will get deleted after extraction
+With the '-d' argument, if there are any ZIP or ZStandard files in the NPK, these will get deleted after extraction<br>
 使用'-d'参数，如果NPK中有任何ZIP或ZStandard文件，这些文件将在提取后被删除
 ```txt
 > python extractor.py -p script.npk -d
 ```
 
-With the '-i' argument, you can see data on the NPK file being extracted (from 1 to 5 for verbosity)
+With the '-i' argument, you can see data on the NPK file being extracted (from 1 to 5 for verbosity)<br>
 使用'-i'参数，您可以看到正在提取的NPK文件的数据（从1到5表示详细级别）
 ```txt
 > python extractor.py -p res.npk -i (1 to 5)
 ```
 
-With the '--nxfn-file' argument, there will be a "NXFN_result.txt" file that has the NXFN file structuring from inside the NPK (if applicable)
+With the '--nxfn-file' argument, there will be a "NXFN_result.txt" file that has the NXFN file structuring from inside the NPK (if applicable)<br>
 使用'--nxfn-file'参数，会有一个"NXFN_result.txt"从NPK内部表示NXFN文件的文件（如果存在）
 ```txt
 > python extractor.py -p res2.npk --nxfn-file
 ```
 
-With the '--no-nxfn' argument, you can disable the NXFN file structuring (useful if it's failing, you should not be using this unless there is a bug that stops you from extracting, which should be reported)
+With the '--no-nxfn' argument, you can disable the NXFN file structuring (useful if it's failing, you should not be using this unless there is a bug that stops you from extracting, which should be reported)<br>
 使用'--no-nxfn'参数，您可以禁用NXFN文件结构（如果失败很有用，您不应该使用它，除非有一个错误阻止您提取，应该报告）
 ```txt
 > python extractor.py -p res4.npk --no-nxfn
 ``` 
 
-With the '--do-one' argument, the program will only do one file from inside the NPK (useful for testing purposes)
+With the '--do-one' argument, the program will only do one file from inside the NPK (useful for testing purposes)<br>
 使用'--do-one'参数，程序只会从NPK内部执行一个文件（用于测试目的）
 ```txt
 > python extractor.py -p script.npk --do-one
 ```
 
-I am trying to add compability to every type of NPK file, it is really appreciated to join the official Discord for more information (https://discord.gg/3enBA4SY)
+I am trying to add compability to every type of NPK file, it is really appreciated to join the official Discord for more information (https://discord.gg/3enBA4SY)<br>
 我正在尝试为每种类型的NPK文件添加可压缩性，真的很感激加入官方Discord以获取更多信息（https://discord.gg/3enBA4SY）或打开推送请求进行审核并可能接受
 
 # Disclaimer: - 免责声明:
-I am not the creator (please check the original fork), I will be offering support only for the scripts that are found in this GitHub branch, I can fix issues with the "mesh viewer" / "mesh converter" if possible but you are better off referring those issues to zhouhang95.
+I am not the creator (please check the original fork), I will be offering support only for the scripts that are found in this GitHub branch, I can fix issues with the "mesh viewer" / "mesh converter" if possible but you are better off referring those issues to zhouhang95.<br>
 我不是创建者（请检查原始分叉），我将只提供对此GitHub分支中找到的脚本的支持，如果可能的话，我可以修复"网格查看器"/"网格转换器"的问题，但您最好将这些问题提交给zhouhang95。
 
 # Credits: - 学分:
