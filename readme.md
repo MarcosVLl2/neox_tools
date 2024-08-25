@@ -68,8 +68,8 @@ With the '--do-one' argument, the program will only do one file from inside the 
 > python extractor.py -p script.npk --do-one
 ```
 
-I am trying to add compability to every type of NPK file, it is really appreciated to join the official Discord for more information (https://discord.gg/3enBA4SY)<br>
-我正在尝试为每种类型的NPK文件添加可压缩性，真的很感激加入官方Discord以获取更多信息（https://discord.gg/3enBA4SY）或打开推送请求进行审核并可能接受
+I am trying to add compability to every type of NPK file, it is really appreciated to join the official [Discord](https://discord.gg/3enBA4SY) for more information <br>
+我正在尝试为每种类型的NPK文件添加可压缩性，真的很感激加入官方[Discord](https://discord.gg/3enBA4SY)以获取更多信息或打开推送请求进行审核并可能接受
 
 # Disclaimer: - 免责声明:
 I am not the creator (please check the original fork), I will be offering support only for the scripts that are found in this GitHub branch, I can fix issues with the "mesh viewer" / "mesh converter" if possible but you are better off referring those issues to zhouhang95.<br>
