@@ -12,7 +12,7 @@ def decryption_algorithm(flag):
             return "XOR_32_127_TYPE3"
     raise Exception("ERROR IN DECRYPTION ALGORITHM: VALUE {}".format(flag))
 
-def file_decrypt(flag, data, crc=0,file_length=0,file_original_length=0):
+def file_decrypt(flag, data, key=0,crc=0,file_length=0,file_original_length=0):
     match flag:
         case 1:
             size = file_length
@@ -20,7 +20,9 @@ def file_decrypt(flag, data, crc=0,file_length=0,file_original_length=0):
             if size > 0x80:
                 size = 0x80
 
-            key = [(0x96 + x) & 0xFF for x in range(0, 0x100)]
+            key = [(key + x) & 0xFF for x in range(0, 0x100)]
+            #key1: 150 + x   (Onmyoji, Onmyoji RPG)
+            #key2:  -250 + x 
             data = bytearray(data)
             for j in range(size):
                 data[j] = data[j] ^ key[j % 0xff]

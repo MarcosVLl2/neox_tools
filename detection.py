@@ -11,7 +11,7 @@ def get_compression(data):
 
 def get_ext(data):
     if len(data) == 0:
-        return 'none'
+        return 'empty'
     elif data[:4] == bytes([0xE3, 0x00, 0x00, 0x00]) or data[:4] == bytes([0x63, 0x00, 0x00, 0x00]) or data[2:4] == bytes([0x0D, 0x0A]):
         return 'pyc'
     elif data[:12] == b'CocosStudio-UI':
@@ -56,6 +56,8 @@ def get_ext(data):
         return 'ntrk'
     elif data[:4] == b'RIFF':
         return 'riff'
+    elif data[:4] == bytes([0xFF,0xD8,0xFF,0xE1]):
+        return 'jpg'
     elif data[:4] == b'BKHD':
         return 'bnk'
     elif data[:27] == b'-----BEING PUBLIC KEY-----':
@@ -70,19 +72,42 @@ def get_ext(data):
         return 'jfif'
     elif data[4:8] == b'ftyp':
         return 'mp4'
+    elif data[:33] == b'NVidia(r) GameWorks Blast(tm) v.1':
+        return 'blast'
     elif data[:8] == b'RAWANIMA':
         return 'rawanimation'
     elif data[:9] == b'blastmesh':
         return 'blastmesh'
-    elif len(data) < 1000000:
-        if b'<Track' in data:
-            return 'trackgroup'
+    elif len(data) < 100000000:
+        #NeoXML file detection
+        if b'Type="Animation"' in data:
+            return 'animation'
+        if b'<AnimationConfig' in data:
+            return 'animconfig'
         if b'<AnimationGraph' in data:
             return 'animgraph'
+        if b'<Physics' in data:
+            return 'col'
+        if b'<EnvParticle' in data:
+            return 'envp'
+        if b'<MaterialGroup' in data:
+            return 'mtg'
         if b'<Material' in data:
             return 'mtl'
+        if b'<Chain' in data:  #needs more testing
+            return 'physicalbone'
+        if b'<PostProcess' in data:
+            return 'postprocess'
+        if b'DisableBakeLightProbe=' in data:  #needs more testing
+            return 'prefab'
         if b'<FxGroup' in data:
             return 'sfx'
+        if b'<MapSkeletonToMeshBone' in data:
+            return 'skeletonextra'
+        if b'<Macros' in data:
+            return 'xml.template'
+        if b'<Head Type="Timeline"' in data:
+            return 'timeline'
         if b'<MetaInfo' in data:
             return 'pvr.meta'
         if b'precision mediump' in data:
