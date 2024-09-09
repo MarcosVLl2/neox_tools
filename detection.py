@@ -18,6 +18,8 @@ def get_ext(data):
         return 'coc'
     elif data[:8] == b'SKELETON':
         return 'skeleton'
+    elif data[:4] == bytes([0x13, 0xAB, 0xA1, 0x5C]):
+        return 'astc'
     elif data[:3] == b'hit':
         return 'hit'
     elif data[:3] == b'PKM':
@@ -108,6 +110,8 @@ def get_ext(data):
             return 'xml.template'
         if b'<Head Type="Timeline"' in data:
             return 'timeline'
+        if b'<Track' in data:
+            return 'trackgroup'
         if b'<MetaInfo' in data:
             return 'pvr.meta'
         if b'precision mediump' in data:

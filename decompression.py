@@ -1,4 +1,4 @@
-import ctypes, zlib, zstandard, lz4.block, zipfile
+import ctypes, zlib, zstandard, lz4.block, zipfile, os
 
 def decompression_algorithm(zflag=0):
     match zflag:
@@ -10,6 +10,8 @@ def decompression_algorithm(zflag=0):
             return "LZ4"
         case 3:
             return "ZSTANDARD"
+        case 5:
+            return "ZSTANDARD - NOT WORKING??"
     raise Exception("ERROR IN DECOMPRESSON ALGORITHM")
 
 def init_rotor():
@@ -58,9 +60,13 @@ def zflag_decompress(flag, data, origlength=0):
         case 1:
             return zlib.decompress(data, bufsize=origlength)
         case 2:
+            with open("jdiwjn", 'wb') as dat:
+                dat.write(data)
             return lz4.block.decompress(data,uncompressed_size=origlength)
         case 3:
             return zstandard.ZstdDecompressor().decompress(data)
+        case 5:
+            return data
     return data
 
 def special_decompress(flag, data):

@@ -77,12 +77,17 @@ def unpack(args, statusBar=None):
     if args.key:
         crc128key = args.key
     try:
-        if args.path == None or os.path.isdir(args.path):
-            allfiles = [args.path + "/" +x for x in os.listdir(args.path) if x.endswith(".npk")]                   
+        if args.path == None:
+            allfiles = ["./" + x for x in os.listdir(args.path) if x.endswith(".npk")]
+        elif os.path.isdir(args.path):
+            allfiles = [args.path + "/" + x for x in os.listdir(args.path) if x.endswith(".npk")]
+            print(allfiles)
         else:
             allfiles.append(args.path)
     except TypeError as e:
         print("NPK files not found")
+    if not allfiles:
+        print("No NPK files found in that folder")
     keys = Keys()
 
     for path in allfiles:
@@ -122,7 +127,7 @@ def unpack(args, statusBar=None):
             nxfn_files = []
 
             if hash_mode == 2:
-                raise Exception("HASHING MODE 2 IS CURRENTLY NOT SUPPORTED")
+                print("HASHING MODE 2 DETECTED, MAY OR MAY NOT WORK!!")
             elif hash_mode == 3:
                 raise Exception("HASHING MODE 3 IS CURRENTLY NOT SUPPORTED")
             if encryption_mode == 256 and args.nxfn_file:
@@ -142,6 +147,8 @@ def unpack(args, statusBar=None):
 
                 if pkg_type:
                     data = keys.decrypt(data)
+                    #with open("decrypted_data", "wb") as writedecrypted:
+                    #    writedecrypted.write(data)
                 tmp.write(data)
                 tmp.seek(0)
                 if args.do_one:
@@ -158,7 +165,7 @@ def unpack(args, statusBar=None):
             for i, item in enumerate(index_table):
                 data2 = None
                 if ((i % step == 0 or i + 1 == files) and args.info <= 2 and args.info != 0) or args.info > 2:
-                    print('FILE: {}/{}'.format(i + 1, files))
+                    print('FILE: {}/{}  ({}%)'.format(i + 1, files, ((i + 1) / files) * 100))
                 file_sign, file_offset, file_length, file_original_length, zcrc, crc, file_structure, zflag, file_flag = item
                 print_data(args.info, 4,"FILESIGN:", hex(file_sign[0]), "VERBOSE_FILE", file_sign[1])
                 file_signs.append(file_sign[0])
@@ -185,7 +192,6 @@ def unpack(args, statusBar=None):
 
                 if pkg_type:
                     data = keys.decrypt(data)
-                        
                 #if not hash_mode == 3:        
                 print_data(args.info, 5,"DECRYPTION:", decryption_algorithm(file_flag), "FILE", file_offset)
                 #print("CURRENT KEY: {}".format(hex(i - 256)))
@@ -221,6 +227,11 @@ def unpack(args, statusBar=None):
                 print_data(args.info, 3,"FILENAME:", file_path, "FILE", file_offset)
                 with open(file_path, 'wb') as dat:
                     dat.write(data)
+                if (ext == "ktx" or ext == "pvr" or ext == "astc") and args.convert_ktx:
+                    if os.name == "posix":
+                        os.system('./dll/PVRTexToolCLI -i "./{}" -d "./{}png" -f r8g8b8a8 -noout'.format(file_path, file_path[:-len(ext)]))
+                    elif os.name == "nt":
+                        os.system('.\dll\PVRTexToolCLI.exe -i "./{}" -d "./{}png" -f r8g8b8a8 -noout'.format(file_path, file_path[:-len(ext)]))
                 if args.nxs3 and data2 != None:
                     with open(file_path[:-3] + "nxs3", "wb") as dat2:
                         dat2.write(data2)
@@ -231,7 +242,7 @@ def unpack(args, statusBar=None):
 
 def get_parser():
     parser = argparse.ArgumentParser(description='NXPK/EXPK Extractor', add_help=False)
-    parser.add_argument('-v', '--version', action='version', version='NXPK/EXPK Extractor  ---  Version: 1.5 --- Added CRC128 key selection, increased detection, added commmand to not print empty files')
+    parser.add_argument('-v', '--version', action='version', version='NXPK/EXPK Extractor  ---  Version: 1.6 --- Added KTX conversion capability, added astc detection, fixed issues with decryption')
     parser.add_argument('-h', '--help', action='help', default=argparse.SUPPRESS, help='Show this help message and exit')
     parser.add_argument('-p', '--path', help="Specify the path of the file or directory, if not specified will do all the files in the current directory",type=str)
     parser.add_argument('-d', '--delete-compressed', action="store_true",help="Delete compressed files (such as ZStandard or ZIP files) after decompression")
@@ -242,6 +253,7 @@ def get_parser():
     parser.add_argument('--do-one', action='store_true', help='Only do the first file (TESTING PURPOSES)')
     parser.add_argument('--nxs3', action='store_true', help="Keep NXS3 files if there's any")
     parser.add_argument('-f','--force', help="Forces the NPK file to be extracted by ignoring the header",action="store_true")
+    parser.add_argument('--convert-ktx', help="Automatically converts KTX to PNG files (WARNING, SUPER SLOW)",action="store_true")
     parser.add_argument('--ignore-empty', help="Does not print empty files", action="store_true")
     #nxs_unpack()
     opt = parser.parse_args()

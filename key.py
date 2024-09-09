@@ -40,9 +40,9 @@ class Keys:
             key_.append(key_i)
         self.keys = key_
 
-    def ensure_keys(self, lenght):
-        if lenght > len(self.keys):
-            self.gen_keys(max(lenght, 2000000))
+    def ensure_keys(self, length):
+        if length > len(self.keys):
+            self.gen_keys(max(length, 2000000))
 
     def decrypt(self, data):
         self.ensure_keys(len(data))
