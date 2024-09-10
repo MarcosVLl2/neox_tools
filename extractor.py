@@ -84,6 +84,7 @@ def unpack(args, statusBar=None):
             print(allfiles)
         else:
             allfiles.append(args.path)
+            #print(allfiles)
     except TypeError as e:
         print("NPK files not found")
     if not allfiles:
@@ -229,9 +230,9 @@ def unpack(args, statusBar=None):
                     dat.write(data)
                 if (ext == "ktx" or ext == "pvr" or ext == "astc") and args.convert_images:
                     if os.name == "posix":
-                        os.system('./dll/PVRTexToolCLI -i "./{}" -d "./{}png" -f r8g8b8a8 -noout'.format(file_path, file_path[:-len(ext)]))
+                        os.system('./dll/PVRTexToolCLI -i "{}" -d "{}png" -f r8g8b8a8 -noout'.format(file_path, file_path[:-len(ext)]))
                     elif os.name == "nt":
-                        os.system('.\dll\PVRTexToolCLI.exe -i "./{}" -d "./{}png" -f r8g8b8a8 -noout'.format(file_path, file_path[:-len(ext)]))
+                        os.system('.\dll\PVRTexToolCLI.exe -i "{}" -d "{}png" -f r8g8b8a8 -noout'.format(file_path, file_path[:-len(ext)]))
                 if args.nxs3 and data2 != None:
                     with open(file_path[:-3] + "nxs3", "wb") as dat2:
                         dat2.write(data2)
