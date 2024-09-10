@@ -227,7 +227,7 @@ def unpack(args, statusBar=None):
                 print_data(args.info, 3,"FILENAME:", file_path, "FILE", file_offset)
                 with open(file_path, 'wb') as dat:
                     dat.write(data)
-                if (ext == "ktx" or ext == "pvr" or ext == "astc") and args.convert_ktx:
+                if (ext == "ktx" or ext == "pvr" or ext == "astc") and args.convert_images:
                     if os.name == "posix":
                         os.system('./dll/PVRTexToolCLI -i "./{}" -d "./{}png" -f r8g8b8a8 -noout'.format(file_path, file_path[:-len(ext)]))
                     elif os.name == "nt":
@@ -253,7 +253,7 @@ def get_parser():
     parser.add_argument('--do-one', action='store_true', help='Only do the first file (TESTING PURPOSES)')
     parser.add_argument('--nxs3', action='store_true', help="Keep NXS3 files if there's any")
     parser.add_argument('-f','--force', help="Forces the NPK file to be extracted by ignoring the header",action="store_true")
-    parser.add_argument('--convert-ktx', help="Automatically converts KTX to PNG files (WARNING, SUPER SLOW)",action="store_true")
+    parser.add_argument('--convert-images', help="Automatically converts KTX, PVR and ASTC to PNG files (WARNING, SUPER SLOW)",action="store_true")
     parser.add_argument('--ignore-empty', help="Does not print empty files", action="store_true")
     #nxs_unpack()
     opt = parser.parse_args()
