@@ -81,10 +81,8 @@ def unpack(args, statusBar=None):
             allfiles = ["./" + x for x in os.listdir(args.path) if x.endswith(".npk")]
         elif os.path.isdir(args.path):
             allfiles = [args.path + "/" + x for x in os.listdir(args.path) if x.endswith(".npk")]
-            print(allfiles)
         else:
             allfiles.append(args.path)
-            #print(allfiles)
     except TypeError as e:
         print("NPK files not found")
     if not allfiles:
@@ -148,14 +146,10 @@ def unpack(args, statusBar=None):
 
                 if pkg_type:
                     data = keys.decrypt(data)
-                    #with open("decrypted_data", "wb") as writedecrypted:
-                    #    writedecrypted.write(data)
                 tmp.write(data)
                 tmp.seek(0)
                 if args.do_one:
                     index_table.append(read_index(tmp, info_size, 0, nxfn_files, index_offset))
-                    #index_table = [index_table[0] for x in range(0, 512)]
-                    #print(index_table)
                 else:
                     for x in range(files):
                         index_table.append(read_index(tmp, info_size, x, nxfn_files, index_offset))
@@ -193,16 +187,13 @@ def unpack(args, statusBar=None):
 
                 if pkg_type:
                     data = keys.decrypt(data)
-                #if not hash_mode == 3:        
+                    
                 print_data(args.info, 5,"DECRYPTION:", decryption_algorithm(file_flag), "FILE", file_offset)
-                #print("CURRENT KEY: {}".format(hex(i - 256)))
 
                 data = file_decrypt(file_flag, data, crc128key, crc, file_length, file_original_length)
 
                 print_data(args.info, 5,"COMPRESSION0:", decompression_algorithm(zflag), "FILE", file_offset)
 
-                #if data[:2] == bytes([0x78, 0x01]) or data[:2] == bytes([0x78, 0x5E]) or data[:2] == bytes([0x78, 0x9C]) or data[:2] == bytes([0x78, 0xDA]):
-                #    print("THIS ONE:")
 
                 data = zflag_decompress(zflag, data, file_original_length)
 
@@ -210,7 +201,7 @@ def unpack(args, statusBar=None):
                 print_data(args.info, 4,"COMPRESSION1:", compression.upper(), "FILE", file_offset)
 
                 data = special_decompress(compression, data)
-                #endif
+
                 if compression == 'zip':
                     file_path = check_file_structure("zip")
                     print_data(args.info, 5,"FILENAME_ZIP:", file_path, "FILE", file_offset)
@@ -236,14 +227,13 @@ def unpack(args, statusBar=None):
                 if args.nxs3 and data2 != None:
                     with open(file_path[:-3] + "nxs3", "wb") as dat2:
                         dat2.write(data2)
-            #print(file_signs)
         end = timer()
         print("FINISHED - DECOMPRESSED {} FILES IN {} seconds".format(files, end - start))
 
 
 def get_parser():
     parser = argparse.ArgumentParser(description='NXPK/EXPK Extractor', add_help=False)
-    parser.add_argument('-v', '--version', action='version', version='NXPK/EXPK Extractor  ---  Version: 1.6 --- Added KTX conversion capability, added astc detection, fixed issues with decryption')
+    parser.add_argument('-v', '--version', action='version', version='NXPK/EXPK Extractor  ---  Version: 1.7 --- Detection Galore!')
     parser.add_argument('-h', '--help', action='help', default=argparse.SUPPRESS, help='Show this help message and exit')
     parser.add_argument('-p', '--path', help="Specify the path of the file or directory, if not specified will do all the files in the current directory",type=str)
     parser.add_argument('-d', '--delete-compressed', action="store_true",help="Delete compressed files (such as ZStandard or ZIP files) after decompression")
