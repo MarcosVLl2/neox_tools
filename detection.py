@@ -25,7 +25,7 @@ def get_ext(data):
     elif data[:8] == b'SKELETON':
         return 'skeleton'
     #elif data[1:8] == bytes([0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]):
-        #return 'blasttool'
+    #    return 'blasttool'
     elif data[:6] == bytes([0x01, 0x00, 0x05, 0x00, 0x00, 0x00]):
         return 'foliage'
     elif data[:8] == b'NEOXMESH':
@@ -162,7 +162,7 @@ def get_ext(data):
             return 'clt'
         if b'<plist' in data:
             return 'plist'
-        if b'<ShaderCompositor' in data or "<ShaderFeature" in data or "<ShaderIndexes" in data or "<RenderTrigger" in data:
+        if b'<ShaderCompositor' in data or b'<ShaderFeature' in data or b"<ShaderIndexes" in data or b"<RenderTrigger" in data:
             return 'render'
         if b'<SkeletonRig' in data:
             return 'skeletonrig'
@@ -170,7 +170,7 @@ def get_ext(data):
             return 'atlas'
         if b'<ShaderCache' in data:
             return 'cache'
-        if b'char' in data and 'width=' in data and 'height=' in data:
+        if b'char' in data and b'width=' in data and b'height=' in data:
             return 'fnt'
         if b'<AllCaches' in data:
             return 'info'
