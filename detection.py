@@ -24,8 +24,8 @@ def get_ext(data):
         return 'uiprefab'
     elif data[:8] == b'SKELETON':
         return 'skeleton'
-    elif data[1:8] == bytes([0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]):
-        return 'blasttool'
+    #elif data[1:8] == bytes([0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]):
+        #return 'blasttool'
     elif data[:6] == bytes([0x01, 0x00, 0x05, 0x00, 0x00, 0x00]):
         return 'foliage'
     elif data[:8] == b'NEOXMESH':
@@ -148,7 +148,7 @@ def get_ext(data):
             return 'haptic'
         if b'<LocalFogParams' in data:
             return 'localfogparams'
-        if b'<Audios' in data or b'<AudioSource':
+        if b'<Audios' in data or b'<AudioSource' in data:
             return 'prefabaudio'
         if b'"ReferenceSkeleton' in data:
             return 'featureschema'
