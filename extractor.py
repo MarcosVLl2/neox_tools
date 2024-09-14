@@ -322,7 +322,7 @@ def unpack(args, statusBar=None):
 #defines the parser arguments
 def get_parser():
     parser = argparse.ArgumentParser(description='NXPK/EXPK Extractor', add_help=False)
-    parser.add_argument('-v', '--version', action='version', version='NXPK/EXPK Extractor  ---  Version: 1.7.2 --- Fixed critical detection issue')
+    parser.add_argument('-v', '--version', action='version', version='NXPK/EXPK Extractor  ---  Version: 1.8 --- Sweet sweet code comments!')
     parser.add_argument('-h', '--help', action='help', default=argparse.SUPPRESS, help='Show this help message and exit')
     parser.add_argument('-p', '--path', help="Specify the path of the file or directory, if not specified will do all the files in the current directory",type=str)
     parser.add_argument('-d', '--delete-compressed', action="store_true",help="Delete compressed files (such as ZStandard or ZIP files) after decompression")
