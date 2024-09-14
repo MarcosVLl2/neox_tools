@@ -234,7 +234,7 @@ def unpack(args, statusBar=None):
                 f.seek(file_offset)
                 
                 #checks if its empty, and if ignore_empty is true, skips it
-                if file_original_length == 0 and args.print_empty:
+                if file_original_length == 0 and args.include_empty:
                     continue
                 
                 #reads the amount of bytes corresponding to that file
@@ -333,7 +333,7 @@ def get_parser():
     parser.add_argument('--do-one', action='store_true', help='Only do the first file (TESTING PURPOSES)')
     parser.add_argument('-f','--force', help="Forces the NPK file to be extracted by ignoring the header",action="store_true")
     parser.add_argument('--convert-images', help="Automatically converts KTX, PVR and ASTC to PNG files (WARNING, SUPER SLOW)",action="store_true")
-    parser.add_argument('--print-empty', help="Prints empty files", action="store_false")
+    parser.add_argument('--include-empty', help="Prints empty files", action="store_false")
     opt = parser.parse_args()
     return opt
 
