@@ -1,5 +1,6 @@
 from copy import copy
 
+#XOR key used by some games, (theres more games with unknown EXPK keys)
 moba_xor_key = [
     0x48, 0x5A, 0xC5, 0xFD, 0x8F, 0x70, 0xA6, 0xDD, 0x1C, 0x6F, 0xB8, 0x86, 0x83, 0x78, 0xB7, 0xF7,
     0xF2, 0xB4, 0x76, 0x7F, 0xAB, 0x5C, 0x40, 0x84, 0xCC, 0xF8, 0x60, 0x9C, 0x12, 0x5B, 0x80, 0x15,
@@ -19,17 +20,20 @@ moba_xor_key = [
     0xAE, 0x4E, 0x0E, 0x81, 0x45, 0x2A, 0x91, 0x90, 0xFE, 0xA3, 0x09, 0x2C, 0x85, 0x4D, 0xB9, 0x7E,
 ]
 
-
+#defines a class to interact with the key
 class Keys:
+    
+    #inits the key
     def __init__(self):
         self.keys = []
 
-    def gen_keys(self, lenght):
+    #generates the key with a length of X numbers
+    def gen_keys(self, length):
         key_ = []
         key_data = copy(moba_xor_key)
         key_index = 0
         key_tmp_index = 0
-        for i in range(lenght):
+        for i in range(length):
             key_index += 1
             tmp_data = key_data[key_index % 256]
             key_tmp_index += tmp_data
@@ -40,10 +44,12 @@ class Keys:
             key_.append(key_i)
         self.keys = key_
 
+    #makes sure the key is long enough
     def ensure_keys(self, length):
         if length > len(self.keys):
             self.gen_keys(max(length, 2000000))
 
+    #decrypts with the key
     def decrypt(self, data):
         self.ensure_keys(len(data))
         data = bytearray(data)

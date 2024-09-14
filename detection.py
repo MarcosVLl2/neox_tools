@@ -1,3 +1,4 @@
+#gets the compression type
 def get_compression(data):
     if len(data) == 0:
         return 'none'
@@ -9,6 +10,7 @@ def get_compression(data):
         return 'zip'
     return 'none'
 
+#tries to get the file extension (will be WIP until 100% compatibility is reached)
 def get_ext(data):
     if len(data) == 0:
         return 'empty'
@@ -80,6 +82,8 @@ def get_ext(data):
         return 'jfif'
     elif data[4:8] == b'ftyp':
         return 'mp4'
+    elif data[0x3B: 0x3F] == bytes([0xC5, 0x00, 0x00, 0x80, 0x3F]):
+        return 'slpb'
     elif len(data) < 100000000:
         #NeoXML file detection
         if b'<Material' in data:
@@ -88,12 +92,14 @@ def get_ext(data):
             return 'mtg'
         if b'<MetaInfo' in data:
             return 'pvr.meta'
-        if b'ViewProjection' in data:
+        if b'SHEX' in data and b'OSGN' in data:
             return 'binary'
         if b'<Section' in data:
             return 'sec'
-        if b'GeoBatchHint="1"' in data:
+        if b'<SubMesh' in data:
             return 'gim'
+        if b'<FxGroup' in data:
+            return 'sfx'
         if b'<Track' in data:
             return 'trackgroup'
         if b'<Instances' in data:
@@ -182,8 +188,14 @@ def get_ext(data):
             return 'md5'
         if b'<EnvParticle' in data:
             return 'envp'
-        if b'<FxGroup' in data:
-            return 'sfx'
+        if b'<NeoX' in data:
+            return 'unkown_neox'
+        if b'"CCLayer"' in data:
+            return 'cclayer'
+        if b'"CCNode"' in data:
+            return 'ccnode'
+        if b'2.1.0.0' in data:
+            return 'detected_but_unknown'
         if b'#?RADIANCE' in data:
             return 'hdr'
         if b'<Macros' in data:
@@ -212,6 +224,8 @@ def get_ext(data):
             return 'bip'
         if b'div.document' in data:
             return 'css'
-    elif data[:1] == b'{':
-        return 'json'
+        if (b'png' in data or b'tga' in data) and b'1000' in data:
+            return 'spr'
+        if data[:1] == b'{':
+            return 'json'
     return 'dat'

@@ -1,22 +1,27 @@
 class newrotor(object):
 
+    #starts the rotor
     def __init__(self, key, n_rotors=6):
         self.n_rotors = n_rotors
         self.setkey(key)
 
+    #sets the key for the rotor algorithm
     def setkey(self, key):
         self.key = key
         self.rotors = None
         self.positions = [None, None]
 
+    #encrypts the buffer
     def encrypt(self, buf):
         self.positions[0] = None
         return self.cryptmore(buf, 0)
 
+    #decrypts the buffer
     def decrypt(self, buf):
         self.positions[1] = None
         return self.cryptmore(buf, 1)
 
+    #def for the encryption / decryption
     def cryptmore(self, buf, do_decrypt):
         size, nr, rotors, pos = self.get_rotors(do_decrypt)
         outbuf = b''
@@ -36,6 +41,7 @@ class newrotor(object):
 
         return outbuf
 
+    #gets the rotors position for the encryption / decryption
     def get_rotors(self, do_decrypt):
         nr = self.n_rotors
         rotors = self.rotors
@@ -73,6 +79,7 @@ class newrotor(object):
             self.positions[do_decrypt] = positions
         return rotors[2], nr, rotors[do_decrypt], positions
 
+#pseudorandom full algorithm with a key
 def random_func(key):
     mask = 0xffff
     x=995
@@ -98,6 +105,7 @@ def random_func(key):
     if y < 0: y += 30307
     if z < 0: z += 30323
 
+    #pseudorandom algorithm with an X Y Z seed
     def rand(n, seed=[(x, y, z)]):
         x, y, z = seed[0]
         seed[0] = ((171*x) % 30269, (172*y) % 30307, (170*z) % 30323)

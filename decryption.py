@@ -1,3 +1,4 @@
+#returns the type of decryption algorithm based on the file_flag index parameter
 def decryption_algorithm(flag):
     match flag:
         case 0:
@@ -12,6 +13,7 @@ def decryption_algorithm(flag):
             return "XOR_32_127_TYPE3"
     raise Exception("ERROR IN DECRYPTION ALGORITHM: VALUE {}".format(flag))
 
+#does the decryption algorithm
 def file_decrypt(flag, data, key=0,crc=0,file_length=0,file_original_length=0):
     match flag:
         case 1:
@@ -21,6 +23,7 @@ def file_decrypt(flag, data, key=0,crc=0,file_length=0,file_original_length=0):
                 size = 0x80
 
             key = [(key + x) & 0xFF for x in range(0, 0x100)]
+            #these keys are for different games, check the "keys.txt" file for more information
             #key1: 150 + x   (Onmyoji, Onmyoji RPG)
             #key2:  -250 + x 
             data = bytearray(data)
