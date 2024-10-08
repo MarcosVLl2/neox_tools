@@ -60,7 +60,9 @@ def zflag_decompress(flag, data, origlength=0):
         case 1:
             return zlib.decompress(data, bufsize=origlength)
         case 2:
-            return lz4.block.decompress(data,uncompressed_size=origlength)
+            with open("test.lz4", "wb") as writer:
+                writer.write(data)
+            return lz4.block.decompress(data,uncompressed_size=0x0FFFFFFE)
         case 3:
             return zstandard.ZstdDecompressor().decompress(data)
         case 5:

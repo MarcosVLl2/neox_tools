@@ -19,7 +19,10 @@ def get_ext(data):
     elif data[:4] == bytes([0x34, 0x80, 0xC8, 0xBB]):
         return 'mesh'
     elif data[:4] == b'RIFF':
-        return 'wem'
+        if b'FEV' in data:
+            return 'fev'
+        elif b'WAVE' in data:
+            return 'wem'
     elif data[:8] == b'RAWANIMA':
         return 'rawanimation'
     elif data[:8] == b'NEOXBIN1':
@@ -48,6 +51,12 @@ def get_ext(data):
         return 'dds'
     elif data[-18:-2] == b'TRUEVISION-XFILE' or data[:3] == bytes([0x00, 0x00, 0x02]) or data[:3] == bytes([0x0D, 0x00, 0x02]):
         return 'tga'
+    elif data[:4] == b'NFXO':
+        return 'nfx'
+    elif data[:4] == bytes([0xC1, 0x59, 0x41, 0x0D]):
+        return 'unknown1'
+    elif data[:8] == b'CompBlks':
+        return 'cbk'
     elif data [:2] == b'BM':
         return 'bmp'
     elif data[:18] == b'from typing import ':
@@ -60,6 +69,8 @@ def get_ext(data):
         return 'clothasset'
     elif data[1:4] == b'PNG':
         return 'png'
+    elif data[:4] == b'FSB5':
+        return 'fsb'
     elif data[:4] == b'VANT':
         return 'vant'
     elif data[:4] == b'MDMP':
@@ -68,6 +79,8 @@ def get_ext(data):
         return 'gis'
     elif data[:4] == b'NTRK':
         return 'trk'
+    elif data[:4] == b'OggS':
+        return 'ogg'
     elif data[:4] == bytes([0xFF,0xD8,0xFF,0xE1]):
         return 'jpg'
     elif data[:4] == b'BKHD':
@@ -188,6 +201,10 @@ def get_ext(data):
             return 'md5'
         if b'<EnvParticle' in data:
             return 'envp'
+        if b'<TextureGroup' in data:
+            return 'txg'
+        if b'<cinematic' in data or (b'<Textures' in data and b'<Data0' in data) or b'<AnimatorTree' in data:
+            return 'xml'
         if b'<NeoX' in data:
             return 'unkown_neox'
         if b'"CCLayer"' in data:
@@ -195,7 +212,7 @@ def get_ext(data):
         if b'"CCNode"' in data:
             return 'ccnode'
         if b'2.1.0.0' in data:
-            return 'detected_but_unknown'
+            return 'csb'
         if b'#?RADIANCE' in data:
             return 'hdr'
         if b'<Macros' in data:
@@ -228,4 +245,15 @@ def get_ext(data):
             return 'spr'
         if data[:1] == b'{':
             return 'json'
+        if data[:4] == b'SEBD':
+            return 'col_android'
+        if b'IMG = {' in data or b'TXT = {' in data or b'DATA = {' in data:
+            return 'txt'
+        if b"'md5'" in data:
+            return "file_signature"
+        if b'2048' in data and b'512' in data:
+            return 'spr'
     return 'dat'
+
+#for 1.9: added spr, file_signature, col_android, txg, some types of xml, changed "undetected_but_unknown" -> csb, cbk, unknown1, nfx
+#added better / fixed "hash_mode = 2" implementation 

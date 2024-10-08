@@ -9,7 +9,7 @@ from timeit import default_timer as timer
 
 #determines the info size by basic math (from the start of the index pointer // EOF or until NXFN data 
 def determine_info_size(f, var1, hashmode, encryptmode, index_offset, files):
-    if encryptmode == 256:
+    if encryptmode == 256 or hashmode == 2:
         return 0x1C
     indexbuf = f.tell()
     f.seek(index_offset)
@@ -76,12 +76,10 @@ def print_data(verblevel, minimumlevel, text, data, typeofdata, pointer=0):
 #main code
 def unpack(args, statusBar=None):
     allfiles = []
-    crc128key = 0
+    if args.selectfile:
+        args.selectfile = args.selectfile - 1
     if args.info == None:
         args.info = 0
-    if args.key:
-        #key for CRC128 (type 1) algorithm
-        crc128key = args.key
     try:
         #determines the files which the reader will have to operate on
         if args.path == None:
@@ -159,6 +157,7 @@ def unpack(args, statusBar=None):
             #checks for the "hash mode"
             if hash_mode == 2:
                 print("HASHING MODE 2 DETECTED, MAY OR MAY NOT WORK!!")
+                print("REPORT ERRORS ON GITHUB OR DISCORD <3")
             elif hash_mode == 3:
                 raise Exception("HASHING MODE 3 IS CURRENTLY NOT SUPPORTED")
                 
@@ -211,11 +210,13 @@ def unpack(args, statusBar=None):
 
             #goes through every index in the index table
             for i, item in enumerate(index_table):
+                if args.selectfile and (i != args.selectfile):
+                    continue
                 data2 = None
                 
                 #checks if it should print the progression text
                 if ((i % step == 0 or i + 1 == files) and args.info <= 2 and args.info != 0) or args.info > 2:
-                    print('FILE: {}/{}  ({}%)'.format(i + 1, files, ((i + 1) / files) * 100))
+                    print('FILE: {}/{}  ({}%)\n'.format(i + 1, files, ((i + 1) / files) * 100))
                     
                 #unpacks the index
                 file_sign, file_offset, file_length, file_original_length, zcrc, crc, file_structure, zflag, file_flag = item
@@ -223,7 +224,7 @@ def unpack(args, statusBar=None):
                 #prints the index data
                 print_data(args.info, 4,"FILESIGN:", hex(file_sign[0]), "VERBOSE_FILE", file_sign[1])
                 print_data(args.info, 3,"FILEOFFSET:", file_offset, "FILE", file_sign[1] + 4)
-                print_data(args.info, 4,"FILELENGTH:", file_length, "VERBOSE_FILE", file_sign[1] + 8)
+                print_data(args.info, 3,"FILELENGTH:", file_length, "FILE", file_sign[1] + 8)
                 print_data(args.info, 4,"FILEORIGLENGTH:", file_original_length, "VERBOSE_FILE", file_sign[1] + 12)
                 print_data(args.info, 4,"ZIPCRCFLAG:", zcrc, "VERBOSE_FILE", file_sign[1] + 16)
                 print_data(args.info, 4,"CRCFLAG:", crc, "VERBOSE_FILE", file_sign[1] + 20)
@@ -233,21 +234,24 @@ def unpack(args, statusBar=None):
                 #goes to the offset where the file is indicated by the index
                 f.seek(file_offset)
                 
-                #checks if its empty, and if ignore_empty is true, skips it
-                if file_original_length == 0 and args.include_empty:
+                #checks if its empty, and if include_empty is false, skips it
+                if file_original_length == 0 and not args.include_empty:
                     continue
                 
                 #reads the amount of bytes corresponding to that file
                 data = f.read(file_length)
                 
                 #defines the method for the file structure (if it has NXFN structure, if not its 00000000.extension)
-                def check_file_structure(ext):
+                def check_file_structure():
                     if file_structure and not args.no_nxfn:
                         file_path = folder_path + "/" + file_structure.decode().replace("\\", "/")
                         os.makedirs(os.path.dirname(file_path), exist_ok=True)
                     else:
-                        file_path = folder_path + '/{:08}.{}'.format(i, ext)
+                        file_path = folder_path + '/{:08}.'.format(i)
                     return file_path
+
+                #gets the file structure
+                file_path = check_file_structure()
 
                 #if its an EXPK file,it decrypts the data
                 if pkg_type:
@@ -257,14 +261,14 @@ def unpack(args, statusBar=None):
                 print_data(args.info, 5,"DECRYPTION:", decryption_algorithm(file_flag), "FILE", file_offset)
 
                 #does the decryption
-                data = file_decrypt(file_flag, data, crc128key, crc, file_length, file_original_length)
+                data = file_decrypt(file_flag, data, args.key, crc, file_length, file_original_length)
 
                 #prints out the compression type
                 print_data(args.info, 5,"COMPRESSION0:", decompression_algorithm(zflag), "FILE", file_offset)
 
                 #does the decompression
                 data = zflag_decompress(zflag, data, file_original_length)
-
+                    
                 #gets the compression type and prints it
                 compression = get_compression(data)
                 print_data(args.info, 4,"COMPRESSION1:", compression.upper(), "FILE", file_offset)
@@ -276,7 +280,7 @@ def unpack(args, statusBar=None):
                 if compression == 'zip':
                     
                     #checks the file structure for zip files
-                    file_path = check_file_structure("zip")
+                    file_path = check_file_structure() + "zip"
                     print_data(args.info, 5,"FILENAME_ZIP:", file_path, "FILE", file_offset)
                     
                     #writes the zip file data
@@ -296,16 +300,15 @@ def unpack(args, statusBar=None):
 
                 #tries to guess the extension of the file
                 ext = get_ext(data)
+                file_path += ext
                 
-                #gets the file structure
-                file_path = check_file_structure(ext)
                 print_data(args.info, 3,"FILENAME:", file_path, "FILE", file_offset)
                 
                 #writes the data
                 with open(file_path, 'wb') as dat:
                     dat.write(data)
                     
-                #converts KTS, PVR and ASTC to PNGs if the flag "convert_images" is set
+                #converts KTX, PVR and ASTC to PNGs if the flag "convert_images" is set
                 if (ext == "ktx" or ext == "pvr" or ext == "astc") and args.convert_images:
                     if os.name == "posix":
                         os.system('./dll/PVRTexToolCLI -i "{}" -d "{}png" -f r8g8b8a8 -noout'.format(file_path, file_path[:-len(ext)]))
@@ -321,19 +324,21 @@ def unpack(args, statusBar=None):
 
 #defines the parser arguments
 def get_parser():
-    parser = argparse.ArgumentParser(description='NXPK/EXPK Extractor', add_help=False)
-    parser.add_argument('-v', '--version', action='version', version='NXPK/EXPK Extractor  ---  Version: 1.8 --- Sweet sweet code comments!')
+    parser = argparse.ArgumentParser(description='NXPK/EXPK Extractor made by MarcosVLl2 (@marcosvll2 on Discord or on GitHub https://github.com/MarcosVLl2/neox_tools)', add_help=False)
+    parser.add_argument('-v', '--version', action='version', version='NXPK/EXPK Extractor  ---  Version: 1.9 --- Fixed CRC and other issues + added credits! (I kind of forgot what else)')
     parser.add_argument('-h', '--help', action='help', default=argparse.SUPPRESS, help='Show this help message and exit')
     parser.add_argument('-p', '--path', help="Specify the path of the file or directory, if not specified will do all the files in the current directory",type=str)
     parser.add_argument('-d', '--delete-compressed', action="store_true",help="Delete compressed files (such as ZStandard or ZIP files) after decompression")
     parser.add_argument('-i', '--info', help="Print information about the npk file(s) 1 to 5 for least to most verbose",type=int)
     parser.add_argument('-k', '--key', help="Select the key to use in the CRC128 hash algorithm (check the keys.txt for information)",type=int)
+    parser.add_argument('--credits', help="Shows credits and acknowledgements from people who helped me develop this!!", action="store_true")
+    parser.add_argument('--force', help="Forces the NPK file to be extracted by ignoring the header",action="store_true")
+    parser.add_argument('--selectfile', help="Only do the file selected", type=int)
     parser.add_argument('--nxfn-file', action="store_true",help="Writes a text file with the NXFN dump output (if applicable)")
     parser.add_argument('--no-nxfn',action="store_true",help="Disables NXFN file structure")
-    parser.add_argument('--do-one', action='store_true', help='Only do the first file (TESTING PURPOSES)')
-    parser.add_argument('-f','--force', help="Forces the NPK file to be extracted by ignoring the header",action="store_true")
     parser.add_argument('--convert-images', help="Automatically converts KTX, PVR and ASTC to PNG files (WARNING, SUPER SLOW)",action="store_true")
     parser.add_argument('--include-empty', help="Prints empty files", action="store_false")
+    parser.add_argument('--do-one', action='store_true', help='Only do the first file (TESTING PURPOSES)')
     opt = parser.parse_args()
     return opt
 
@@ -341,9 +346,21 @@ def get_parser():
 def main():
     #defines the parser argument
     opt = get_parser()
-    
-    #runs the unpack script with the given arguments
-    unpack(opt)
+
+    # credits screen
+    if opt.credits:
+        print("\nThank you to everyone who helped me develop this tool and to all of the effort from other tool creators.\n")
+        print("zhouhang95:    https://github.com/zhouhang95/neox_tools")  
+        print("hax0r313373:   https://github.com/hax0r31337/denpk2")
+        print("xforce:        https://github.com/xforce/neox-tools")
+        print("yuanbi:        https://github.com/yuanbi/NeteaseUnpackTools\n")
+        print("Also a big thank you to everyone in the unofficial Discord (https://discord.gg/eedXVqzmfn) who is helping me with reporting errors and new NPK files to detect!\n")
+        print("Special thanks to: aocosmic, victornewspaper, danisis397, yumpyyingzi and _kingjulz")
+        print("Please join the server above to help out!!\n")
+    else:
+
+        #runs the unpack script with the given arguments
+        unpack(opt)
 
 #entry point if ran as a standalone
 if __name__ == '__main__':

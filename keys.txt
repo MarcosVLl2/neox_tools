@@ -2,8 +2,9 @@ THIS FILE HOLDS THE DECRYPTION KEYS FOR DIFFERENT NPK FILES (until I can reliabl
 此文件保存不同NPK文件的解密密钥（直到我可以可靠地以另一种方式进行解密而无需分析）
 
 
-Onmyoji: --key 150
+Onmyoji (ONMY: --key 150
 Onmyoji RPG: --key 150
+Harry Potter Magic Awakening: --key -250
 
 Other keys that may work:
 可能工作的其他键:
