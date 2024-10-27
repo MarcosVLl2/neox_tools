@@ -299,8 +299,10 @@ def unpack(args, statusBar=None):
                     continue
 
                 #tries to guess the extension of the file
-                ext = get_ext(data)
-                file_path += ext
+
+                if not file_structure:
+                    ext = get_ext(data)
+                    file_path += ext
                 
                 print_data(args.info, 3,"FILENAME:", file_path, "FILE", file_offset)
                 
