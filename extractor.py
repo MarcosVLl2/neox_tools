@@ -212,6 +212,7 @@ def unpack(args, statusBar=None):
             for i, item in enumerate(index_table):
                 if args.selectfile and (i != args.selectfile):
                     continue
+                ext = None
                 data2 = None
                 
                 #checks if it should print the progression text
@@ -246,6 +247,7 @@ def unpack(args, statusBar=None):
                     if file_structure and not args.no_nxfn:
                         file_path = folder_path + "/" + file_structure.decode().replace("\\", "/")
                         os.makedirs(os.path.dirname(file_path), exist_ok=True)
+                        ext = file_path.split(".")[-1]
                     else:
                         file_path = folder_path + '/{:08}.'.format(i)
                     return file_path
